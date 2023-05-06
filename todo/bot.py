@@ -24,3 +24,23 @@ def start(update: Update, context: CallbackContext):
 
     update.message.reply_markdown_v2('*Hello, welcome to our bot\!*')
     
+
+def get_tasks(update: Update, context: CallbackContext):
+    '''add new task'''
+    pass
+    
+
+def add_task(update: Update, context: CallbackContext):
+    '''add new task'''
+    pass
+    
+
+def delete_task(update: Update, context: CallbackContext):
+    '''add new task'''
+    pass
+    
+
+def mark(update: Update, context: CallbackContext):
+    '''add new task'''
+    pass
+
