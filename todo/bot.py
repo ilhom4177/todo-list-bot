@@ -1,6 +1,6 @@
 import requests
 from .settings import base_url
-from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 
 
@@ -29,7 +29,22 @@ def start(update: Update, context: CallbackContext):
 
 def get_tasks(update: Update, context: CallbackContext):
     '''add new task'''
-    pass
+    chat_id = update.message.chat.id
+
+    url_for_get_tasks = f'{base_url}/get-tasks/{chat_id}'
+    response = requests.get(url_for_get_tasks)
+
+    msg = ''
+    if response.status_code == 200:
+        tasks = response.json()
+        
+        for task in tasks:
+            btn = InlineKeyboardButton(text=task['name'], callback_data=task['name'])
+            if task['done']:
+                msg += f'✅ {task["name"]}\n'
+            else:
+                msg += f'❌ {task["name"]}\n'
+    update.message.reply_html(msg)
     
 
 def add_task(update: Update, context: CallbackContext):
@@ -37,7 +52,7 @@ def add_task(update: Update, context: CallbackContext):
     text = update.message.text
     chat_id = update.message.chat.id
 
-    url_for_add_task = f'{base_url}//create-task/{chat_id}'
+    url_for_add_task = f'{base_url}/create-task/{chat_id}'
     data = {
         "name": text
     }
