@@ -1,6 +1,6 @@
 import requests
 from .settings import base_url
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import CallbackContext
 
 
@@ -21,8 +21,10 @@ def start(update: Update, context: CallbackContext):
     url_for_register = f'{base_url}/create-user'
     response = requests.post(url_for_register, json=user)
 
-
-    update.message.reply_markdown_v2('*Hello, welcome to our bot\!*')
+    btn = KeyboardButton(text='my tasks')
+    update.message.reply_markdown_v2(
+        '*Hello, welcome to our bot\!*\n\n_select name for creating task_',
+        reply_markup=ReplyKeyboardMarkup(keyboard=[[btn]]))
     
 
 def get_tasks(update: Update, context: CallbackContext):
@@ -32,7 +34,16 @@ def get_tasks(update: Update, context: CallbackContext):
 
 def add_task(update: Update, context: CallbackContext):
     '''add new task'''
-    pass
+    text = update.message.text
+    chat_id = update.message.chat.id
+
+    url_for_add_task = f'{base_url}//create-task/{chat_id}'
+    data = {
+        "name": text
+    }
+    response = requests.post(url_for_add_task, json=data)
+    print(response.status_code)
+    update.message.reply_markdown_v2('*added task*')
     
 
 def delete_task(update: Update, context: CallbackContext):
