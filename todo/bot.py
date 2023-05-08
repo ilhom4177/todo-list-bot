@@ -32,7 +32,20 @@ def get_tasks(update: Update, context: CallbackContext):
 
 def add_task(update: Update, context: CallbackContext):
     '''add new task'''
-    pass
+
+    task_text = update.message.text
+    chat_id = update.message.chat.id
+    task_text = update.message.text
+    
+    # Send the task to the server via API
+    url_for_add_task = f'{base_url}/add-task'
+    task = {'chat_id': chat_id, 'task_text': task_text}
+    response = requests.post(url_for_add_task, json=task)
+
+    if response.ok:
+        update.message.reply_text(f'Task "{task_text}" added successfully.')
+    else:
+        update.message.reply_text('Error adding the task. Please try again later.')
     
 
 def delete_task(update: Update, context: CallbackContext):
