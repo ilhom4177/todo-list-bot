@@ -1,6 +1,6 @@
 import requests
 from .settings import base_url
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 
 
@@ -21,31 +21,44 @@ def start(update: Update, context: CallbackContext):
     url_for_register = f'{base_url}/create-user'
     response = requests.post(url_for_register, json=user)
 
-
-    update.message.reply_markdown_v2('*Hello, welcome to our bot\!*')
+    btn = KeyboardButton(text='my tasks')
+    update.message.reply_markdown_v2(
+        '*Hello, welcome to our bot\!*\n\n_select name for creating task_',
+        reply_markup=ReplyKeyboardMarkup(keyboard=[[btn]]))
     
 
 def get_tasks(update: Update, context: CallbackContext):
     '''add new task'''
-    pass
+    chat_id = update.message.chat.id
+
+    url_for_get_tasks = f'{base_url}/get-tasks/{chat_id}'
+    response = requests.get(url_for_get_tasks)
+
+    msg = ''
+    if response.status_code == 200:
+        tasks = response.json()
+        
+        for task in tasks:
+            btn = InlineKeyboardButton(text=task['name'], callback_data=task['name'])
+            if task['done']:
+                msg += f'✅ {task["name"]}\n'
+            else:
+                msg += f'❌ {task["name"]}\n'
+    update.message.reply_html(msg)
     
 
 def add_task(update: Update, context: CallbackContext):
     '''add new task'''
-
-    task_text = update.message.text
+    text = update.message.text
     chat_id = update.message.chat.id
-    task_text = update.message.text
-    
-    # Send the task to the server via API
-    url_for_add_task = f'{base_url}/add-task'
-    task = {'chat_id': chat_id, 'task_text': task_text}
-    response = requests.post(url_for_add_task, json=task)
 
-    if response.ok:
-        update.message.reply_text(f'Task "{task_text}" added successfully.')
-    else:
-        update.message.reply_text('Error adding the task. Please try again later.')
+    url_for_add_task = f'{base_url}/create-task/{chat_id}'
+    data = {
+        "name": text
+    }
+    response = requests.post(url_for_add_task, json=data)
+    print(response.status_code)
+    update.message.reply_markdown_v2('*added task*')
     
 
 def delete_task(update: Update, context: CallbackContext):
