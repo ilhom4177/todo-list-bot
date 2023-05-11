@@ -63,8 +63,18 @@ def add_task(update: Update, context: CallbackContext):
 
 def delete_task(update: Update, context: CallbackContext):
     '''add new task'''
-    pass
-    
+    query = update.callback_query
+    task_name = query.data
+
+    chat_id = query.message.chat_id
+    url_for_delete_task = f'{base_url}/delete_task/{chat_id}'
+    data = {
+        "name": task_name
+    }
+    response = requests.post(url_for_delete_task, json=data)
+    print(response.status_code)
+    query.data('delete_task')
+
 
 def mark(update: Update, context: CallbackContext):
     '''add new task'''
